@@ -46,16 +46,16 @@ function createMainWindow() {
 
   // Charge l'application web
   if (app.isPackaged) {
-    // Production : charge le build statique
-    const indexPath = path.join(__dirname, '../../dist-web/index.html');
+    // Production : charge le build du renderer
+    const indexPath = path.join(__dirname, '../renderer/index.html');
     if (fs.existsSync(indexPath)) {
       mainWindow.loadFile(indexPath);
     } else {
-      console.error('❌ Build web introuvable dans dist-web/');
+      console.error('❌ Build renderer introuvable dans dist/renderer/');
       app.quit();
     }
   } else {
-    // Développement : charge le serveur Next.js
+    // Développement : charge le serveur Vite
     mainWindow.loadURL('http://localhost:5173');
   }
 

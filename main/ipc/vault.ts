@@ -33,13 +33,17 @@ export function registerVaultHandlers() {
     }
   });
 
-  // Import du vault depuis fichier .vault
+  // Import du vault depuis fichier .vault, JSON, CSV, TXT
   ipcMain.handle('vault:import-from-file', async () => {
     try {
       const { canceled, filePaths } = await dialog.showOpenDialog({
         title: 'Importer un Vault',
         filters: [
+          { name: 'Tous les formats supportés', extensions: ['vault', 'json', 'csv', 'txt'] },
           { name: 'Vault Files', extensions: ['vault'] },
+          { name: 'JSON Files', extensions: ['json'] },
+          { name: 'CSV Files (Kaspersky, 1Password, etc.)', extensions: ['csv'] },
+          { name: 'Text Files (Kaspersky)', extensions: ['txt'] },
           { name: 'All Files', extensions: ['*'] },
         ],
         properties: ['openFile'],
