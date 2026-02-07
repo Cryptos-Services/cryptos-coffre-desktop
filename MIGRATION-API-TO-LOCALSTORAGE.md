@@ -421,6 +421,6 @@ function updateEntry(id: string, updates: Partial<VaultEntry>) {
 
 **Status** : 🎉 Migration complète et fonctionnelle
 
-**Signature** : GitHub Copilot (Claude Sonnet 4.5)  
+**Signature** : Cryptos Services (Hyper-Cryptos)  
 **Date** : 3 février 2026  
 **Version** : Electron Desktop 1.0.0 (dev)
