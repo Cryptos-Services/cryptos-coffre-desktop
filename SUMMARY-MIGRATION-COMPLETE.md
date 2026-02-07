@@ -388,7 +388,7 @@ Vous avez maintenant une application Cryptos Coffre Desktop **complètement fonc
 
 ---
 
-**Auteur** : GitHub Copilot (Claude Sonnet 4.5)  
+**Auteur** : Cryptos Services (Hyper-Cryptos)  
 **Date** : 3 février 2026  
 **Version** : Electron Desktop 1.0.0 (dev)
 
