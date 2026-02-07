@@ -1,0 +1,245 @@
+/**
+ * Styles pour le système de toasts/notifications
+ * Style cohérent avec l'application (couleurs violet/bleu foncé)
+ */
+
+/* Conteneur des toasts - Position fixe en haut à droite */
+.toast-container {
+  position: fixed;
+  top: 80px; /* Sous la titlebar (60px) + marge (20px) */
+  right: 20px;
+  z-index: 10002; /* Au-dessus de tout (titlebar = 10000) */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  pointer-events: none; /* Permet les clics à travers le conteneur vide */
+}
+
+@media (max-width: 768px) {
+  .toast-container {
+    top: 70px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .toast-container {
+    top: 50px;
+    right: 8px;
+    left: 8px;
+  }
+}
+
+/* Toast individuel */
+.toast-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #5e17eb 0%, #030121 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);  
+  -webkit-backdrop-filter: blur();
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  pointer-events: all; /* Réactive les clics sur les toasts */
+  animation: toast-slide-in 0.3s ease-out;
+  transition: all 0.3s ease;
+  min-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .toast-item {
+    min-width: 0;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toast-item {
+    padding: 10px;
+    gap: 8px;
+  }
+}
+
+/* Animation d'entrée */
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Animation de sortie */
+.toast-exit {
+  animation: toast-slide-out 0.3s ease-in forwards;
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+/* Hover sur le toast */
+.toast-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+}
+
+/* Icône du toast */
+.toast-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .toast-icon {
+    font-size: 20px;
+  }
+}
+
+/* Contenu du toast */
+.toast-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Titre du toast */
+.toast-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.4;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 480px) {
+  .toast-title {
+    font-size: 14px;
+  }
+}
+
+/* Message du toast */
+.toast-message {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  white-space: pre-line; /* Permet les retours à la ligne (\n) */
+}
+
+@media (max-width: 480px) {
+  .toast-message {
+    font-size: 12px;
+  }
+}
+
+/* Bouton de fermeture */
+.toast-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #ffffff;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.toast-close:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 480px) {
+  .toast-close {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+}
+
+/* Variantes par type */
+
+/* Success - Vert */
+.toast-success {
+  border-left: 6px solid #10b981;
+}
+
+.toast-success .toast-icon {
+  color: #10b981;
+}
+
+/* Error - Rouge */
+.toast-error {
+  border-left: 6px solid #ef4444;
+}
+
+.toast-error .toast-icon {
+  color: #ef4444;
+}
+
+/* Warning - Orange */
+.toast-warning {
+  border-left: 6px solid #f59e0b;
+}
+
+.toast-warning .toast-icon {
+  color: #f59e0b;
+}
+
+/* Info - Bleu clair */
+.toast-info {
+  border-left: 6px solid #3b82f6;
+}
+
+.toast-info .toast-icon {
+  color: #3b82f6;
+}
+
+/* Barre de progression (optionnelle pour future amélioration) */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 0 0 12px 12px;
+  animation: toast-progress-shrink 5s linear;
+}
+
+@keyframes toast-progress-shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

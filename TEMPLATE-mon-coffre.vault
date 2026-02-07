@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "exportDate": "2026-02-03T12:00:00.000Z",
+  "vault": {
+    "salt": "VOTRE_SALT_BASE64_ICI",
+    "entries": [],
+    "folders": []
+  },
+  "security": {
+    "lockoutDuration": 300000,
+    "maxAttempts": 5,
+    "autoLockDelay": 900000,
+    "requireWebAuthn": false,
+    "requireTOTP": false,
+    "webAuthnEnabled": false,
+    "totpEnabled": false,
+    "passphraseHint": ""
+  },
+  "audit": []
+}

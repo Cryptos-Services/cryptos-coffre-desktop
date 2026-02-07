@@ -1,0 +1,64 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist/
+dist-web/
+release/
+out/
+build/
+
+# Cache
+.npm
+.eslintcache
+*.tsbuildinfo
+.vite
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Electron
+*.asar
+*.snap
+*.dmg
+*.exe
+*.deb
+*.rpm
+*.AppImage
+
+# Temp
+.tmp
+temp/
+*.tmp
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Test
+coverage/
+.nyc_output/
+
+# Other
+.cache
+*.cache

@@ -1,0 +1,83 @@
+appId: com.cryptos-services.vault
+productName: Cryptos Coffre
+copyright: Copyright © 2023-2026 Cryptos Services
+
+directories:
+  output: release
+  buildResources: resources
+
+files:
+  - dist/**/*
+  - dist-web/**/*
+  - '!**/*.map'
+  - '!**/node_modules/**'
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+    - target: portable
+      arch:
+        - x64
+  icon: resources/icons/icon.ico
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+mac:
+  target:
+    - dmg
+    - zip
+  icon: resources/icons/icon.icns
+  category: public.app-category.finance
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.plist
+
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+  icon: resources/icons/icon.png
+  category: Utility
+  maintainer: Cryptos Services <contact@cryptos-services.com>
+  synopsis: Coffre-Fort Numérique Sécurisé
+  description: |
+    Cryptos Coffre est un coffre-fort numérique ultra-sécurisé
+    utilisant un chiffrement AES-GCM 256-bit avec architecture
+    zero-knowledge pour protéger vos données sensibles.
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Cryptos Coffre
+  installerIcon: resources/icons/icon.ico
+  uninstallerIcon: resources/icons/icon.ico
+  installerHeader: resources/installer/header.bmp
+  installerHeaderIcon: resources/icons/icon.ico
+  license: LICENSE
+
+dmg:
+  title: ${productName} ${version}
+  icon: resources/icons/icon.icns
+  background: resources/installer/background.png
+  iconSize: 100
+  contents:
+    - x: 380
+      y: 180
+      type: link
+      path: /Applications
+    - x: 130
+      y: 180
+      type: file
+
+publish:
+  provider: github
+  owner: cryptos-services
+  repo: cryptos-coffre-desktop
+  releaseType: release
