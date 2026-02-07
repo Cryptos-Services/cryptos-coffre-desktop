@@ -343,5 +343,5 @@ Après validation complète :
 ---
 
 **Créé le** : 3 février 2026  
-**Auteur** : GitHub Copilot (Claude Sonnet 4.5)  
+**Auteur** : Cryptos Services (Hyper-Cryptos)  
 **Status** : 🎉 Prêt pour tests
