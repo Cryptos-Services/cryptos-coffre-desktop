@@ -364,13 +364,6 @@ sessionStorage.clear();
 window.location.reload();
 ```
 
-# 1. Arrêter le serveur dev (Ctrl+C dans le terminal)
-
-# 2. Copier le build web depuis Cryptos-Services
-npm run copy-web
-
-# 3. Builder la version Windows
-npm run build:win
 ---
 
 ## ✨ Félicitations '!'
