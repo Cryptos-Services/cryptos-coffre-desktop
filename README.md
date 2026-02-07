@@ -4,6 +4,7 @@ Coffre-Fort Numérique Sécurisé - Application Desktop Electron avec chiffremen
 ## 🎉 Première version stable de Cryptos Coffre Desktop
 
 ### ✨ Fonctionnalités
+
 - 🔒 Chiffrement AES-GCM 256-bit
 - 🏦 Gestion multi-types : Mots de passe, Wallets Cryptos, Notes, Documents
 - 🔐 Authentification 2FA (WebAuthn + TOTP)
@@ -16,10 +17,12 @@ Coffre-Fort Numérique Sécurisé - Application Desktop Electron avec chiffremen
 ### 📥 Installation
 
 **Windows** :
+
 - `Cryptos-Coffre-Desktop-Setup-1.0.0.exe` → Installateur (recommandé)
 - `Cryptos-Coffre-Desktop-1.0.0.exe` → Version portable
 
 ### 🔒 Sécurité
+
 - Architecture Zero-Knowledge
 - Aucune donnée n'est envoyée sur internet
 - Stockage local chiffré
