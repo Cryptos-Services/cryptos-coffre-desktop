@@ -6,7 +6,11 @@ import { detectImportFormat, parseKasperskyTXT, parseKasperskyCSV, parseGenericC
 import { useToast } from '../hooks/useToast';
 import type { CreateEntryParams } from '../types/vault';
 
-export default function CustomTitleBar() {
+interface CustomTitleBarProps {
+  onShowLicense?: () => void;
+}
+
+export default function CustomTitleBar({ onShowLicense }: CustomTitleBarProps = {}) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isVaultUnlocked, setIsVaultUnlocked] = useState(false);
@@ -348,10 +352,15 @@ export default function CustomTitleBar() {
         // console.log('🔔 Affichage du toast À propos...');
         toast.info(
           'Cryptos Coffre Desktop',
-          `Version 1.0.1\n\nCoffre-Fort Numérique Sécurisé\n© ${new Date().getFullYear()} Cryptos Services\n\nChiffrement AES-GCM 256-bit\nArchitecture Zero-Knowledge`,
+          `Version 1.0.2\n\nCoffre-Fort Numérique Sécurisé\n© ${new Date().getFullYear()} Cryptos Services\n\nChiffrement AES-GCM 256-bit\nArchitecture Zero-Knowledge`,
           7000 // 7 secondes pour lire
         );
         // console.log('✅ Toast créé avec succès');
+        break;
+      case 'license':
+        if (onShowLicense) {
+          onShowLicense();
+        }
         break;
       
       default:
@@ -545,6 +554,9 @@ export default function CustomTitleBar() {
                   Signaler un bug
                 </button>
                 <div className="menu-separator" />
+                <button onClick={() => handleMenuAction('license')}>
+                  🔑 Gérer la licence
+                </button>
                 <button onClick={() => handleMenuAction('about')}>
                   À propos
                 </button>

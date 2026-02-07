@@ -46,10 +46,15 @@ interface WindowAPI {
   onMaximizedChange: (callback: (isMaximized: boolean) => void) => void;
 }
 
+interface ShellAPI {
+  openExternal: (url: string) => Promise<void>;
+}
+
 interface ElectronAPI {
   vault: VaultAPI;
   crypto: CryptoAPI;
   window: WindowAPI;
+  shell: ShellAPI;
   platform: NodeJS.Platform;
   version: string;
 }

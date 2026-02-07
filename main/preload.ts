@@ -53,10 +53,15 @@ export interface WindowAPI {
   onMaximizedChange: (callback: (isMaximized: boolean) => void) => void;
 }
 
+export interface ShellAPI {
+  openExternal: (url: string) => Promise<void>;
+}
+
 export interface ElectronAPI {
   vault: VaultAPI;
   crypto: CryptoAPI;
   window: WindowAPI;
+  shell: ShellAPI;
   platform: NodeJS.Platform;
   version: string;
 }
@@ -128,11 +133,17 @@ const windowAPI: WindowAPI = {
   onMaximizedChange: (callback) => ipcRenderer.on('window:maximized', (_event, isMaximized) => callback(isMaximized)),
 };
 
+// API Shell (ouvrir liens externes)
+const shellAPI: ShellAPI = {
+  openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
+};
+
 // Expose l'API au contexte window
 contextBridge.exposeInMainWorld('electronAPI', {
   vault: vaultAPI,
   crypto: cryptoAPI,
   window: windowAPI,
+  shell: shellAPI,
   platform: process.platform,
   version: process.versions.electron,
 } as ElectronAPI);

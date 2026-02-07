@@ -13,6 +13,7 @@ import { addAuditLog } from '../lib/auditLog';
 import { authenticateWithWebAuthn, updateCredentialLastUsed } from '../lib/webauthn';
 import { verifyTOTPCode } from '../lib/totp';
 import { useSecuritySettings } from '../hooks/useSecuritySettings';
+import { getLicenseInfo } from '../lib/licensing';
 import DuplicateCleaner from './DuplicateCleaner';
 import PasswordGenerator from './PasswordGenerator';
 import SecuritySettings from './SecuritySettings';
@@ -47,6 +48,19 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
     name: '',
     data: {},
   });
+  
+  // État pour l'info de licence
+  const [licenseInfo, setLicenseInfo] = useState(getLicenseInfo());
+  
+  // Écoute les mises à jour de licence
+  useEffect(() => {
+    const handleLicenseUpdate = () => {
+      setLicenseInfo(getLicenseInfo());
+    };
+    
+    window.addEventListener('license-updated', handleLicenseUpdate);
+    return () => window.removeEventListener('license-updated', handleLicenseUpdate);
+  }, []);
   
   // État pour la vérification 2FA
   const [show2FAPrompt, setShow2FAPrompt] = useState(false);
@@ -1515,6 +1529,39 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
   return (
     <div className="vault-container">
       <h1 className="vault-title">🔓 Coffre Numérique Sécurisé</h1>
+      
+      {/* Bandeau d'information sur la licence */}
+      {licenseInfo.status === 'trial' && (
+        <div className="license-banner license-banner-trial">
+          <div className="license-banner-content">
+            <div className="license-banner-info">
+              <span className="license-banner-emoji">🎁</span>
+              <div>
+                <strong>Période d'essai</strong>
+                {' '}
+                <span className="license-banner-text">
+                  {licenseInfo.trialDaysRemaining} jour{licenseInfo.trialDaysRemaining > 1 ? 's' : ''} restant{licenseInfo.trialDaysRemaining > 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* On affiche le bandeau de licence active uniquement si le statut est "active" 
+      {licenseInfo.status === 'active' && (
+        <div className="license-banner license-banner-active">
+          <span className="license-banner-emoji">✅</span>
+          <div>
+            <strong>Licence active</strong>
+            {' '}
+            <span className="license-banner-text">
+              Version à vie
+            </span>
+          </div>
+        </div>
+      )}
+      */}
+      
       <div className="vault-header">
         <div className="vault-header-actions">
           <button 

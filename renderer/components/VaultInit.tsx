@@ -143,7 +143,7 @@ export default function VaultInit({ onVaultCreated }: VaultInitProps) {
             type="password"
             value={passphrase}
             onChange={handlePassphraseChange}
-            placeholder="Passphrase maître (min. 12 caractères)"
+            placeholder="Passphrase maître"
             className="vault-input-unlock"
             required
             autoFocus

@@ -292,6 +292,11 @@ app.whenReady().then(() => {
     event.returnValue = mainWindow?.isMaximized() ?? false;
   });
   
+  // Handler shell external URL
+  ipcMain.handle('shell:openExternal', async (_event, url: string) => {
+    await shell.openExternal(url);
+  });
+  
   // Handler install update
   ipcMain.on('update:install', () => {
     autoUpdater.quitAndInstall();

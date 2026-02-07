@@ -20,7 +20,7 @@ win:
     - target: portable
       arch:
         - x64
-  icon: resources/icons/icon.ico
+  icon: resources/icons/Cryptos-Coffre-Logo.ico
   artifactName: ${productName}-${version}-${arch}.${ext}
 
 mac:
