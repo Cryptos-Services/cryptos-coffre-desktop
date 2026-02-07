@@ -104,7 +104,7 @@ export function useSecuritySettings() {
         throw new Error('Passphrase non disponible. Réessayez et entrez votre passphrase.');
       }
       
-      console.log('📝 Passphrase récupérée, génération de la clé de récupération...');
+      // console.log('📝 Passphrase récupérée, génération de la clé de récupération...');
       
       // IMPORTANT: Vérifie que la passphrase est correcte avant de créer les codes
       const salt = base64ToSalt(saltBase64);
@@ -112,7 +112,7 @@ export function useSecuritySettings() {
       try {
         // Vérifie que la passphrase est valide en dérivant la clé
         const testKey = await deriveKey(currentPassphrase, salt);
-        console.log('✅ Passphrase validée avec succès');
+        // console.log('✅ Passphrase validée avec succès');
         
         // NOUVEAU: Teste le déchiffrement d'une entrée existante pour vérifier
         const vaultDataStr = localStorage.getItem('vault_data');
@@ -123,7 +123,7 @@ export function useSecuritySettings() {
             const { decrypt } = await import('../lib/encryption');
             try {
               await decrypt(entries[0].encryptedData, entries[0].iv, testKey);
-              console.log('✅ Test de déchiffrement réussi - la passphrase correspond aux entrées');
+              // console.log('✅ Test de déchiffrement réussi - la passphrase correspond aux entrées');
             } catch (decryptErr) {
               console.error('❌ Test de déchiffrement échoué:', decryptErr);
               throw new Error(

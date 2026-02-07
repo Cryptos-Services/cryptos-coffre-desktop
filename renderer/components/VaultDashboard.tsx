@@ -748,7 +748,7 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
    * useCallback pour capturer les entries à jour dans les listeners IPC
    */
   const handleDetectDuplicates = useCallback(() => {
-    console.log(`🔍 Détection de doublons... (${entries.length} entrées)`);
+    // console.log(`🔍 Détection de doublons... (${entries.length} entrées)`);
     const result = detectDuplicates(entries);
     
     if (result.totalDuplicates === 0) {
@@ -1168,7 +1168,7 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
           const folderName = targetFolderId 
             ? folders.find(f => f.id === targetFolderId)?.name 
             : 'Racine';
-          console.log(`✅ Entrée "${entry.name}" déplacée et sauvegardée vers: ${folderName}`);
+          // console.log(`✅ Entrée "${entry.name}" déplacée et sauvegardée vers: ${folderName}`);
           
           // Log d'audit
           addAuditLog('entry_update', {
@@ -1302,7 +1302,7 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
     
     // Nettoyage des listeners au démontage du composant (évite les doubles appels)
     return () => {
-      console.log('🧹 Nettoyage des listeners IPC...');
+      // console.log('🧹 Nettoyage des listeners IPC...');
       window.electronAPI.vault.removeLockListener(lockHandler);
       // window.electronAPI.vault.removeExportListener(exportHandler); // Désactivé
       // window.electronAPI.vault.removeImportListener(importHandler); // Désactivé
@@ -1369,7 +1369,7 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
         
         if (!Array.isArray(entries) || entries.length === 0) return;
 
-        console.log(`📥 Import automatique de ${entries.length} entrée(s)...`);
+        // console.log(`📥 Import automatique de ${entries.length} entrée(s)...`);
 
         let successCount = 0;
         let errorCount = 0;

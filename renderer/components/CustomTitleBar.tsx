@@ -104,7 +104,7 @@ export default function CustomTitleBar() {
         success: true,
       });
 
-      console.log('✅ Export réussi');
+      // console.log('✅ Export réussi');
     } catch (err) {
       console.error('❌ Erreur export:', err);
       addAuditLog('export_data', {
@@ -345,17 +345,17 @@ export default function CustomTitleBar() {
         window.open('https://github.com/cryptos-services/cryptos-coffre-desktop/issues', '_blank');
         break;
       case 'about':
-        console.log('🔔 Affichage du toast À propos...');
+        // console.log('🔔 Affichage du toast À propos...');
         toast.info(
           'Cryptos Coffre Desktop',
-          `Version 1.0.0\n\nCoffre-Fort Numérique Sécurisé\n© ${new Date().getFullYear()} Cryptos Services\n\nChiffrement AES-GCM 256-bit\nArchitecture Zero-Knowledge`,
+          `Version 1.0.1\n\nCoffre-Fort Numérique Sécurisé\n© ${new Date().getFullYear()} Cryptos Services\n\nChiffrement AES-GCM 256-bit\nArchitecture Zero-Knowledge`,
           7000 // 7 secondes pour lire
         );
-        console.log('✅ Toast créé avec succès');
+        // console.log('✅ Toast créé avec succès');
         break;
       
       default:
-        console.log(`Action non gérée: ${action}`);
+        // console.log(`Action non gérée: ${action}`);
     }
   };
 
@@ -364,12 +364,12 @@ export default function CustomTitleBar() {
     if (!window.electronAPI) return;
 
     const exportHandler = () => {
-      console.log('📤 Export déclenché par IPC (Ctrl+E)');
+      // console.log('📤 Export déclenché par IPC (Ctrl+E)');
       handleExport();
     };
 
     const importHandler = () => {
-      console.log('📥 Import déclenché par IPC (Ctrl+I)');
+      // console.log('📥 Import déclenché par IPC (Ctrl+I)');
       handleImport();
     };
 

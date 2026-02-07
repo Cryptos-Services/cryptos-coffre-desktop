@@ -28,9 +28,9 @@ class ToastManager {
       duration: toast.duration ?? 5000,
     };
 
-    console.log('📥 Toast ajouté au manager:', newToast);
+    // console.log('📥 Toast ajouté au manager:', newToast);
     this.toasts.push(newToast);
-    console.log('📋 Nombre de toasts:', this.toasts.length, 'Listeners:', this.listeners.size);
+    // console.log('📋 Nombre de toasts:', this.toasts.length, 'Listeners:', this.listeners.size);
     this.notify();
 
     // Auto-dismiss

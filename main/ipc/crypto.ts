@@ -85,5 +85,5 @@ export function registerCryptoHandlers() {
     }
   });
 
-  console.log('✅ Crypto handlers enregistrés');
+  // console.log('✅ Crypto handlers enregistrés');
 }

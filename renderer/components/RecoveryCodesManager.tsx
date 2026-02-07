@@ -53,7 +53,7 @@ export default function RecoveryCodesManager() {
     }
 
     try {
-      console.log('🔐 Génération des codes de récupération...');
+      // console.log('🔐 Génération des codes de récupération...');
       const newCodes = await generateNewRecoveryCodes();
       setShowCodes(true);
       

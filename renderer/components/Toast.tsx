@@ -60,10 +60,10 @@ export function ToastItem({ toast, onDismiss }: ToastItemProps) {
  * Pas besoin de passer les toasts en props, il les récupère automatiquement
  */
 export function ToastContainer() {
-  console.log('🎨 ToastContainer: Rendu du composant');
+  // console.log('🎨 ToastContainer: Rendu du composant');
   const toast = useToast();
 
-  console.log('📊 ToastContainer: Nombre de toasts à afficher:', toast.toasts.length);
+  // console.log('📊 ToastContainer: Nombre de toasts à afficher:', toast.toasts.length);
 
   if (toast.toasts.length === 0) return null;
 

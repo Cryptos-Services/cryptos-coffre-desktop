@@ -110,5 +110,5 @@ export function registerVaultHandlers() {
     }
   });
 
-  console.log('✅ Vault handlers enregistrés');
+  // console.log('✅ Vault handlers enregistrés');
 }

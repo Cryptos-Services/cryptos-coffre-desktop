@@ -83,7 +83,7 @@ export default function TOTPManager() {
     };
     logo.onerror = (err) => {
       console.error('❌ Erreur chargement logo:', err);
-      console.log('📍 Chemin logo tenté:', logoImage);
+      // console.log('📍 Chemin logo tenté:', logoImage);
     };
     logo.src = logoImage; // Utilise l'import Vite
   };

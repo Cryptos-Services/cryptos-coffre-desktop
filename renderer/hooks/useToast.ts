@@ -14,14 +14,14 @@ export function useToast() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
-    console.log('🔌 useToast: Initialisation et subscription...');
+    // console.log('🔌 useToast: Initialisation et subscription...');
     setToasts(toastManager.getToasts());
     const unsubscribe = toastManager.subscribe((newToasts) => {
-      console.log('🔔 useToast: Notification reçue, nouveaux toasts:', newToasts.length);
+      // console.log('🔔 useToast: Notification reçue, nouveaux toasts:', newToasts.length);
       setToasts(newToasts);
     });
     return () => {
-      console.log('🔌 useToast: Nettoyage subscription');
+      // console.log('🔌 useToast: Nettoyage subscription');
       unsubscribe();
     };
   }, []);
