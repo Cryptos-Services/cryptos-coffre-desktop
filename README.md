@@ -5,7 +5,7 @@ Coffre-Fort Numérique Sécurisé - Application Desktop Electron avec chiffremen
 
 ### ✨ Fonctionnalités
 - 🔒 Chiffrement AES-GCM 256-bit
-- 🏦 Gestion multi-types : Mots de passe, Wallets crypto, Notes, Documents
+- 🏦 Gestion multi-types : Mots de passe, Wallets Cryptos, Notes, Documents
 - 🔐 Authentification 2FA (WebAuthn + TOTP)
 - 📁 Organisation par dossiers et tags
 - 🔍 Détection de doublons
