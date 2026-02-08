@@ -39,7 +39,7 @@ linux:
     - AppImage
     - deb
     - rpm
-  icon: resources/icons/icon.png
+  icon: resources/icons/Cryptos-Coffre-Logo.png
   category: Utility
   maintainer: Cryptos Services <contact@cryptos-services.com>
   synopsis: Coffre-Fort Numérique Sécurisé
@@ -55,10 +55,10 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: Cryptos Coffre
-  installerIcon: resources/icons/icon.ico
-  uninstallerIcon: resources/icons/icon.ico
+  installerIcon: resources/icons/Cryptos-Coffre-Logo.ico
+  uninstallerIcon: resources/icons/Cryptos-Coffre-Logo.ico
   installerHeader: resources/installer/header.bmp
-  installerHeaderIcon: resources/icons/icon.ico
+  installerHeaderIcon: resources/icons/Cryptos-Coffre-Logo.ico
   license: LICENSE
 
 dmg:

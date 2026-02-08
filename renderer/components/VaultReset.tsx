@@ -239,6 +239,7 @@ export default function VaultReset({ onClose }: VaultResetProps) {
                   type="text"
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
+                  onClick={(e) => e.currentTarget.focus()}
                   placeholder="Tapez: SUPPRIMER TOUT"
                   className="vault-input vault-reset-input"
                   autoFocus

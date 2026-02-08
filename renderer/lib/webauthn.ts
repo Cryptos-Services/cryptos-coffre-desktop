@@ -4,6 +4,7 @@
  */
 
 import { WebAuthnCredential } from '../types/security';
+import { extractAAGUIDFromAttestation, formatAuthenticatorName } from './aaguids';
 
 const RP_NAME = 'Cryptos-Services Vault';
 const RP_ID = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
@@ -102,11 +103,15 @@ export async function registerWebAuthnCredential(
     ],
     authenticatorSelection: {
       authenticatorAttachment: authenticatorType,
-      userVerification: 'required',
+      // Pour platform (Windows Hello): 'required' = sécurité maximale
+      // Pour cross-platform (Yubikey): 'preferred' = compatibilité maximale
+      userVerification: authenticatorType === 'platform' ? 'required' : 'preferred',
       requireResidentKey: false,
     },
     timeout: 60000,
-    attestation: 'none',
+    // 'direct' permet de récupérer l'AAGUID réel (peut afficher popup permission)
+    // 'indirect' masque l'AAGUID pour confidentialité (retourne 00000000...)
+    attestation: 'direct',
   };
 
   try {
@@ -119,16 +124,54 @@ export async function registerWebAuthnCredential(
     }
 
     const response = credential.response as AuthenticatorAttestationResponse;
+    
+    // Extrait l'AAGUID depuis l'attestationObject
+    let aaguid: string | undefined;
+    try {
+      const extractedAAGUID = extractAAGUIDFromAttestation(response.attestationObject);
+      
+      // Vérifie si l'AAGUID est null (00000000-0000-0000-0000-000000000000)
+      const isNullAAGUID = extractedAAGUID && /^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(extractedAAGUID);
+      
+      if (extractedAAGUID && !isNullAAGUID) {
+        aaguid = extractedAAGUID;
+        console.log('✅ AAGUID extrait:', aaguid);
+      } else if (isNullAAGUID) {
+        console.warn('⚠️ AAGUID masqué (00000000...) - authenticator protège sa confidentialité');
+        console.log('💡 Solution: L\'utilisateur peut renommer manuellement le credential');
+        aaguid = undefined; // Ne stocke pas l'AAGUID null
+      } else {
+        console.warn('⚠️ AAGUID non trouvé dans attestationObject');
+      }
+    } catch (aaguidError) {
+      console.error('❌ Erreur extraction AAGUID:', aaguidError);
+    }
+
+    // Génère un nom descriptif basé sur l'AAGUID
+    const generatedName = formatAuthenticatorName(
+      aaguid,
+      authenticatorType,
+      `${authenticatorType === 'platform' ? 'Biométrie' : 'Clé de sécurité'} - ${new Date().toLocaleDateString()}`
+    );
 
     const webAuthnCredential: WebAuthnCredential = {
       id: credential.id,
       credentialId: arrayBufferToBase64url(credential.rawId),
       publicKey: arrayBufferToBase64url(response.getPublicKey()!),
       authenticatorType,
+      aaguid, // Stocke l'AAGUID pour identification future
+      enabled: true, // Activé par défaut lors de la création
       createdAt: new Date().toISOString(),
       lastUsed: new Date().toISOString(),
-      name: `${authenticatorType === 'platform' ? 'Biométrie' : 'Clé de sécurité'} - ${new Date().toLocaleDateString()}`,
+      name: generatedName,
     };
+
+    console.log('🚀 Credential WebAuthn créé:', {
+      id: webAuthnCredential.id,
+      name: webAuthnCredential.name,
+      type: webAuthnCredential.authenticatorType,
+      enabled: webAuthnCredential.enabled,
+    });
 
     return webAuthnCredential;
   } catch (error: unknown) {
@@ -157,8 +200,21 @@ export async function authenticateWithWebAuthn(
     throw new Error('Aucun credential WebAuthn enregistré');
   }
 
+  console.log('🔐 Authentification WebAuthn - Credentials disponibles:', credentials);
+  console.log('🔐 État enabled de chaque credential:', credentials.map(c => ({ name: c.name, enabled: c.enabled })));
+
+  // Filtre uniquement les credentials actifs (enabled !== false)
+  const enabledCredentials = credentials.filter(cred => cred.enabled !== false);
+
+  console.log('✅ Credentials actifs après filtrage:', enabledCredentials);
+  console.log('✅ Nombre de credentials actifs:', enabledCredentials.length);
+
+  if (enabledCredentials.length === 0) {
+    throw new Error('Aucun credential WebAuthn actif. Activez au moins un credential dans les paramètres.');
+  }
+
   const challenge = generateChallenge();
-  const allowCredentials = credentials.map(cred => ({
+  const allowCredentials = enabledCredentials.map(cred => ({
     type: 'public-key' as const,
     id: base64urlToArrayBuffer(cred.credentialId),
     transports: cred.authenticatorType === 'platform' 
@@ -171,7 +227,8 @@ export async function authenticateWithWebAuthn(
     timeout: 60000,
     rpId: RP_ID,
     allowCredentials,
-    userVerification: 'required',
+    // 'preferred' au lieu de 'required' pour compatibilité Yubikey
+    userVerification: 'preferred',
   };
 
   try {
@@ -217,11 +274,24 @@ export function updateCredentialLastUsed(
   credentials: WebAuthnCredential[],
   credentialId: string
 ): WebAuthnCredential[] {
-  return credentials.map(cred =>
+  console.log('🔄 [updateCredentialLastUsed] Mise à jour lastUsed:', {
+    credentialId,
+    credentialsBeforeUpdate: credentials.length,
+    credentialIds: credentials.map(c => ({ id: c.id, credentialId: c.credentialId, name: c.name })),
+  });
+  
+  const updated = credentials.map(cred =>
     cred.credentialId === credentialId
       ? { ...cred, lastUsed: new Date().toISOString() }
       : cred
   );
+  
+  console.log('🔄 [updateCredentialLastUsed] Après mise à jour:', {
+    credentialsAfterUpdate: updated.length,
+    found: updated.some(c => c.credentialId === credentialId),
+  });
+  
+  return updated;
 }
 
 /**

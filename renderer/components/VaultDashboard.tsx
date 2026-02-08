@@ -209,15 +209,37 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
    * Vérifie la 2FA avec WebAuthn
    */
   const handle2FAVerification = async () => {
+    console.log('🔐 [handle2FAVerification] Début authentification 2FA');
+    
+    // CORRECTIF: Recharge TOUJOURS depuis localStorage pour éviter le state stale
+    let freshCredentials = settings.webAuthnCredentials || [];
     try {
-      const result = await authenticateWithWebAuthn(settings.webAuthnCredentials || []);
+      const stored = localStorage.getItem('vault-security-settings');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        freshCredentials = parsed.webAuthnCredentials || [];
+        console.log('🔐 Credentials rechargés depuis localStorage:', freshCredentials.length);
+      }
+    } catch (e) {
+      console.error('⚠️ Erreur rechargement credentials:', e);
+    }
+    
+    console.log('🔐 Credentials disponibles:', freshCredentials);
+    
+    try {
+      const result = await authenticateWithWebAuthn(freshCredentials);
+      
+      console.log('🔐 Résultat authentification:', result);
       
       if (result.success && result.credentialId) {
-        // Met à jour la date de dernière utilisation
+        // Met à jour la date de dernière utilisation (utilise freshCredentials, pas settings obsolète)
         const updatedCredentials = updateCredentialLastUsed(
-          settings.webAuthnCredentials || [],
+          freshCredentials,
           result.credentialId
         );
+        
+        console.log('🔐 Credentials après updateCredentialLastUsed:', updatedCredentials);
+        
         saveSettings({ webAuthnCredentials: updatedCredentials });
         
         // Log d'audit
@@ -1454,6 +1476,7 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
               onChange={(e) => setPassphrase(e.target.value)}
               placeholder="Passphrase maître"
               className="vault-input-unlock"
+              autoFocus
               required
             />
             <button type="submit" className="vault-btn vault-btn-primary" disabled={loading || isLocked}>
@@ -1666,10 +1689,29 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
         <div className="vault-modal-overlay">
           <div className="vault-modal">
             <h3>🔐 Authentification à deux facteurs</h3>
-            <p>Veuillez vous authentifier avec votre biométrie ou clé de sécurité.</p>
+            <p>
+              {settings.webAuthnCredentials && settings.webAuthnCredentials.length > 0
+                ? settings.webAuthnCredentials[0].authenticatorType === 'platform'
+                  ? '📱 Utilisez votre biométrie (Touch ID, Face ID, Windows Hello)'
+                  : '🔑 Touchez votre clé de sécurité maintenant (YubiKey, Ledger, etc.)'
+                : '🔐 Authentifiez-vous avec votre méthode 2FA configurée'
+              }
+            </p>
             <div className="vault-2fa-waiting">
-              <div className="vault-2fa-icon">⏳</div>
+              <div className="vault-2fa-icon vault-2fa-pulse">⏳</div>
               <p>En attente de votre authentification...</p>
+              <p className="vault-2fa-timeout">Timeout: 60 secondes</p>
+            </div>
+            <div className="vault-modal-actions">
+              <button
+                onClick={() => {
+                  setShow2FAPrompt(false);
+                  lock();
+                }}
+                className="vault-btn vault-btn-secondary"
+              >
+                ❌ Annuler
+              </button>
             </div>
           </div>
         </div>

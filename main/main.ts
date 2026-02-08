@@ -81,6 +81,11 @@ function createMainWindow() {
     mainWindow?.webContents.send('window:maximized', false);
   });
 
+  // Force le focus du contenu web à chaque fois que la fenêtre obtient le focus système
+  mainWindow.on('focus', () => {
+    mainWindow?.webContents.focus();
+  });
+
   // Ouvre les liens externes dans le navigateur
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http') || url.startsWith('https')) {

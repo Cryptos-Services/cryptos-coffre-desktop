@@ -88,10 +88,37 @@ export default function RecoveryCodesManager() {
       .map(rc => formatCodeForDisplay(rc.code))
       .join('\n');
     
-    navigator.clipboard.writeText(codesText).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    });
+    // Méthode moderne avec fallback
+    navigator.clipboard.writeText(codesText)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 3000);
+      })
+      .catch(err => {
+        console.error('❌ Échec copie clipboard API:', err);
+        // Fallback : méthode classique avec textarea temporaire
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = codesText;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.focus();
+          textarea.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          
+          if (success) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 3000);
+          } else {
+            alert('❌ Impossible de copier les codes. Veuillez les sélectionner manuellement.');
+          }
+        } catch (fallbackErr) {
+          console.error('❌ Échec fallback copie:', fallbackErr);
+          alert('❌ Erreur lors de la copie. Veuillez utiliser Télécharger ou Imprimer.');
+        }
+      });
   };
 
   const handleDownload = () => {

@@ -13,7 +13,9 @@ import {
   removeWebAuthnCredential,
   renameWebAuthnCredential,
 } from '../lib/webauthn';
+import { formatAuthenticatorName } from '../lib/aaguids';
 import { addAuditLog } from '../lib/auditLog';
+import type { WebAuthnCredential } from '../types/security';
 import '../styles/SecuritySettings.css';
 
 export default function WebAuthnManager() {
@@ -47,11 +49,26 @@ export default function WebAuthnManager() {
       
       const credential = await registerWebAuthnCredential(userId, userName, 'platform');
       
+      console.log('🔑 Enregistrement credential platform:', credential);
+      console.log('💾 Credentials actuels avant sauvegarde:', settings.webAuthnCredentials);
+      
       const newCredentials = [...(settings.webAuthnCredentials || []), credential];
+      
+      console.log('💾 Nouveaux credentials après ajout:', newCredentials);
+      
       saveSettings({ 
         webAuthnCredentials: newCredentials,
-        webAuthnEnabled: true,
+        webAuthnEnabled: true, // Auto-active la 2FA lors du 1er enregistrement
       });
+      
+      // Vérifie que la sauvegarde a fonctionné
+      setTimeout(() => {
+        const stored = localStorage.getItem('vault-security-settings');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          console.log('✅ Vérification localStorage - Credentials sauvegardés:', parsed.webAuthnCredentials);
+        }
+      }, 100);
 
       addAuditLog('2fa_enabled', {
         success: true,
@@ -80,11 +97,26 @@ export default function WebAuthnManager() {
       
       const credential = await registerWebAuthnCredential(userId, userName, 'cross-platform');
       
+      console.log('🔑 Enregistrement credential cross-platform:', credential);
+      console.log('💾 Credentials actuels avant sauvegarde:', settings.webAuthnCredentials);
+      
       const newCredentials = [...(settings.webAuthnCredentials || []), credential];
+      
+      console.log('💾 Nouveaux credentials après ajout:', newCredentials);
+      
       saveSettings({ 
         webAuthnCredentials: newCredentials,
-        webAuthnEnabled: true,
+        webAuthnEnabled: true, // Auto-active la 2FA lors du 1er enregistrement
       });
+      
+      // Vérifie que la sauvegarde a fonctionné
+      setTimeout(() => {
+        const stored = localStorage.getItem('vault-security-settings');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          console.log('✅ Vérification localStorage - Credentials sauvegardés:', parsed.webAuthnCredentials);
+        }
+      }, 100);
 
       addAuditLog('2fa_enabled', {
         success: true,
@@ -148,6 +180,43 @@ export default function WebAuthnManager() {
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditName('');
+  };
+
+  const handleToggleEnabled = (credentialId: string) => {
+    const credential = settings.webAuthnCredentials?.find(c => c.id === credentialId);
+    if (!credential) return;
+
+    console.log('🔄 Toggle credential:', { name: credential.name, currentEnabled: credential.enabled });
+
+    const newEnabled = credential.enabled === false ? true : false;
+    
+    console.log('🔄 Nouvel état enabled:', newEnabled);
+    
+    const newCredentials = (settings.webAuthnCredentials || []).map(cred =>
+      cred.id === credentialId
+        ? { ...cred, enabled: newEnabled }
+        : cred
+    );
+
+    console.log('🔄 Credentials après toggle:', newCredentials.map(c => ({ name: c.name, enabled: c.enabled })));
+
+    // Vérifie qu'au moins un credential reste actif
+    const hasActiveCredentials = newCredentials.some(c => c.enabled !== false);
+    
+    console.log('🔄 Au moins un credential actif?', hasActiveCredentials);
+    
+    if (!hasActiveCredentials && !newEnabled) {
+      alert('⚠️ Impossible de désactiver: Au moins un credential doit rester actif pour l\'authentification.');
+      return;
+    }
+
+    saveSettings({ webAuthnCredentials: newCredentials });
+
+    addAuditLog('2fa_credential_toggled', {
+      success: true,
+      credentialName: credential.name,
+      enabled: newEnabled,
+    });
   };
 
   const handleToggle2FA = (enabled: boolean) => {
@@ -218,7 +287,7 @@ export default function WebAuthnManager() {
                 {settings.webAuthnCredentials!.map((cred) => (
                   <div
                     key={cred.id}
-                    className="webauthn-credential-item"
+                    className={`webauthn-credential-item ${cred.enabled === false ? 'webauthn-credential-disabled' : ''}`}
                   >
                     <div className="webauthn-credential-content">
                       {editingId === cred.id ? (
@@ -235,9 +304,32 @@ export default function WebAuthnManager() {
                         <strong>{cred.name}</strong>
                       )}
                       <div className="webauthn-credential-info">
-                        Type: {cred.authenticatorType === 'platform' ? '📱 Biométrie' : '🔑 Clé externe'}
-                        <br />
+                        {cred.aaguid ? (
+                          <>
+                            Modèle: {formatAuthenticatorName(cred.aaguid, cred.authenticatorType)}
+                            <br />
+                          </>
+                        ) : (
+                          <>
+                            Type: {cred.authenticatorType === 'platform' ? '📱 Biométrie' : '🔑 Clé externe'}
+                            <br />
+                          </>
+                        )}
                         Dernière utilisation: {new Date(cred.lastUsed).toLocaleString('fr-FR')}
+                        <br />
+                        <div className="webauthn-credential-status">
+                          <label className="webauthn-toggle-label">
+                            <input
+                              type="checkbox"
+                              checked={cred.enabled !== false}
+                              onChange={() => handleToggleEnabled(cred.id)}
+                              className="webauthn-toggle-input"
+                              title='Uiliser cette clé pour la 2FA'
+                              aria-label={cred.enabled !== false ? 'Credential activé' : 'Credential désactivé'}
+                            />
+                            <span className="webauthn-toggle-slider"></span>
+                          </label>
+                        </div>
                       </div>
                     </div>
                     <div className="webauthn-credential-buttons">
@@ -262,13 +354,13 @@ export default function WebAuthnManager() {
                             onClick={() => handleStartEdit(cred.id, cred.name)}
                             className="vault-btn vault-btn-secondary webauthn-button-small"
                           >
-                            ✏️ Renommer
+                            ✏️
                           </button>
                           <button
                             onClick={() => handleRemoveCredential(cred.id)}
                             className="vault-btn vault-btn-danger webauthn-button-small"
                           >
-                            🗑️ Supprimer
+                            🗑️
                           </button>
                         </>
                       )}

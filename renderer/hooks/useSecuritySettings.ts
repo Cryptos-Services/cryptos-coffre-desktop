@@ -35,8 +35,14 @@ export function useSecuritySettings() {
       const stored = localStorage.getItem(SECURITY_SETTINGS_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        console.log('💾 [useSecuritySettings] Chargement depuis localStorage:', {
+          webAuthnEnabled: parsed.webAuthnEnabled,
+          credentialsCount: (parsed.webAuthnCredentials || []).length,
+          credentials: parsed.webAuthnCredentials,
+        });
         setSettings({ ...DEFAULT_SETTINGS, ...parsed });
       } else {
+        console.log('💾 [useSecuritySettings] Aucun settings en localStorage, utilisation des defaults');
         setSettings(DEFAULT_SETTINGS);
       }
     } catch (error) {
@@ -63,6 +69,11 @@ export function useSecuritySettings() {
    * Sauvegarde les paramètres
    */
   const saveSettings = useCallback((newSettings: Partial<SecuritySettings>) => {
+    console.log('💾 [useSecuritySettings] Sauvegarde des settings:', {
+      newSettings,
+      credentialsCount: (newSettings.webAuthnCredentials || []).length,
+    });
+    
     setSettings(prev => {
       const updated = {
         ...prev,
@@ -70,8 +81,14 @@ export function useSecuritySettings() {
         updatedAt: new Date().toISOString(),
       };
       
+      console.log('💾 [useSecuritySettings] Settings après merge:', {
+        credentialsCount: (updated.webAuthnCredentials || []).length,
+        credentials: updated.webAuthnCredentials,
+      });
+      
       try {
         localStorage.setItem(SECURITY_SETTINGS_KEY, JSON.stringify(updated));
+        console.log('✅ [useSecuritySettings] Sauvegarde localStorage réussie');
       } catch (error) {
         console.error('Erreur lors de la sauvegarde des paramètres:', error);
       }

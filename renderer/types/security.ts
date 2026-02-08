@@ -25,6 +25,7 @@ export type AuditActionType =
   | '2fa_disabled'
   | '2fa_success'
   | '2fa_failed'
+  | '2fa_credential_toggled'
   | 'recovery_codes_generate'
   | 'recovery_code_used'
   | 'password_recovery'
@@ -52,6 +53,8 @@ export interface AuditLogEntry {
     format?: string; // Pour import_pending (format de fichier)
     count?: number; // Pour import_pending/import_auto (nombre d'entrées)
     errors?: number; // Pour import_auto (nombre d'erreurs)
+    credentialName?: string; // Pour 2fa_credential_toggled (nom du credential)
+    enabled?: boolean; // Pour 2fa_credential_toggled (nouvel état enabled/disabled)
   };
 }
 
@@ -115,7 +118,9 @@ export interface WebAuthnCredential {
   credentialId: string;
   publicKey: string;
   authenticatorType: 'platform' | 'cross-platform';
+  aaguid?: string; // AAGUID de l'authenticator (permet d'identifier le modèle physique)
   name: string; // Nom donné par l'utilisateur (ex: "Touch ID MacBook")
+  enabled?: boolean; // Si false, le credential est désactivé (default: true)
   createdAt: string;
   lastUsed: string;
 }

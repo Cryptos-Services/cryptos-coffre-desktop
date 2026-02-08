@@ -146,6 +146,20 @@ export function useVault(): UseVaultState & UseVaultActions {
    * Récupère et déchiffre les entrées
    */
   const fetchAndDecryptEntries = async (key: CryptoKey) => {
+    // TOUJOURS valider la passphrase avec le canary (même si coffre vide)
+    const canaryStr = localStorage.getItem('vault_canary');
+    if (canaryStr) {
+      try {
+        const { encryptedData, iv } = JSON.parse(canaryStr);
+        const decrypted = await decrypt(encryptedData, iv, key);
+        if (decrypted !== 'VAULT_VALID') {
+          throw new Error('Passphrase incorrecte');
+        }
+      } catch (err) {
+        throw new Error('Passphrase incorrecte');
+      }
+    }
+    
     // Récupère depuis localStorage (pas d'API backend dans Electron)
     const vaultDataStr = localStorage.getItem('vault_data');
     

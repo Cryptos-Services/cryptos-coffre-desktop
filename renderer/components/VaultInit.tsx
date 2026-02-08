@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { saltToBase64 } from '../lib/encryption';
+import { saltToBase64, deriveKey, encrypt } from '../lib/encryption';
 
 interface VaultInitProps {
   onVaultCreated: (passphrase: string) => void;
@@ -105,6 +105,15 @@ export default function VaultInit({ onVaultCreated }: VaultInitProps) {
       // Stocker le salt en base64
       localStorage.setItem('vault_salt', saltBase64);
       
+      // Créer un "canary" chiffré pour valider la passphrase ultérieurement
+      // (nécessaire pour détecter un mauvais mot de passe sur un coffre vide)
+      const key = await deriveKey(passphrase, salt);
+      const canaryResult = await encrypt('VAULT_VALID', key);
+      localStorage.setItem('vault_canary', JSON.stringify({
+        encryptedData: canaryResult.encryptedData,
+        iv: canaryResult.iv
+      }));
+      
       // Initialiser les données du coffre (vide au départ)
       localStorage.setItem('vault_data', JSON.stringify([]));
       
@@ -130,7 +139,7 @@ export default function VaultInit({ onVaultCreated }: VaultInitProps) {
   };
 
   return (
-    <div className="vault-container">
+    <div className="vault-container-init">
       <div className="vault-unlock-card-created">
         <h1 className="vault-title">🔐 Créer votre Coffre Numérique</h1>
         
@@ -145,8 +154,8 @@ export default function VaultInit({ onVaultCreated }: VaultInitProps) {
             onChange={handlePassphraseChange}
             placeholder="Passphrase maître"
             className="vault-input-unlock"
-            required
             autoFocus
+            required
           />
           
           {strength && (
