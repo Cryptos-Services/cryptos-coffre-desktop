@@ -750,6 +750,9 @@ html, body, #root {
 
 .vault-modal-large {
   max-width: 900px;
+  height: 80vh;
+  margin-top: 60px;
+  padding: 1rem;
 }
 
 .duplicate-info-status {
