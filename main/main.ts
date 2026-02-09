@@ -13,7 +13,7 @@ let localServer: http.Server | null = null;
 let serverPort: number = 0;
 
 // Configuration auto-update
-autoUpdater.autoDownload = false;
+autoUpdater.autoDownload = true; // ✅ Téléchargement automatique des mises à jour
 autoUpdater.autoInstallOnAppQuit = true;
 
 /**
