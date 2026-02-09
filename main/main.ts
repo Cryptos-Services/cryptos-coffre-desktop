@@ -2,21 +2,93 @@ import { app, BrowserWindow, ipcMain, Menu, shell, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as http from 'http';
 
 // Import IPC handlers
 import { registerVaultHandlers } from './ipc/vault';
 import { registerCryptoHandlers } from './ipc/crypto';
 
 let mainWindow: BrowserWindow | null = null;
+let localServer: http.Server | null = null;
+let serverPort: number = 0;
 
 // Configuration auto-update
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
 /**
+ * Crée un serveur HTTP local pour servir les fichiers en production
+ * Nécessaire pour WebAuthn qui requiert http://localhost ou HTTPS
+ */
+function createLocalServer(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const rendererPath = path.join(__dirname, '../renderer');
+    
+    localServer = http.createServer((req, res) => {
+      // Parse l'URL et gère les chemins
+      let filePath = path.join(rendererPath, req.url === '/' ? 'index.html' : req.url || '');
+      
+      // Sécurité: empêche l'accès aux fichiers en dehors de renderer/
+      if (!filePath.startsWith(rendererPath)) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
+      }
+
+      // Détermine le content-type
+      const ext = path.extname(filePath);
+      const contentTypes: { [key: string]: string } = {
+        '.html': 'text/html',
+        '.js': 'application/javascript',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.svg': 'image/svg+xml',
+        '.ico': 'image/x-icon',
+      };
+      const contentType = contentTypes[ext] || 'application/octet-stream';
+
+      // Lit et sert le fichier
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          if (err.code === 'ENOENT') {
+            res.writeHead(404);
+            res.end('File not found');
+          } else {
+            res.writeHead(500);
+            res.end('Internal server error');
+          }
+        } else {
+          res.writeHead(200, { 'Content-Type': contentType });
+          res.end(data);
+        }
+      });
+    });
+
+    // Écoute sur un port aléatoire (0 = auto)
+    localServer.listen(0, '127.0.0.1', () => {
+      const address = localServer?.address();
+      if (address && typeof address !== 'string') {
+        serverPort = address.port;
+        console.log(`🌐 Serveur local démarré sur http://localhost:${serverPort}`);
+        resolve(serverPort);
+      } else {
+        reject(new Error('Impossible de démarrer le serveur local'));
+      }
+    });
+
+    localServer.on('error', (err) => {
+      console.error('❌ Erreur serveur local:', err);
+      reject(err);
+    });
+  });
+}
+
+/**
  * Création de la fenêtre principale
  */
-function createMainWindow() {
+async function createMainWindow() {
   // Fenêtre adaptative : 85% de l'écran disponible
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
@@ -46,14 +118,9 @@ function createMainWindow() {
 
   // Charge l'application web
   if (app.isPackaged) {
-    // Production : charge le build du renderer
-    const indexPath = path.join(__dirname, '../renderer/index.html');
-    if (fs.existsSync(indexPath)) {
-      mainWindow.loadFile(indexPath);
-    } else {
-      console.error('❌ Build renderer introuvable dans dist/renderer/');
-      app.quit();
-    }
+    // Production : démarre serveur HTTP local puis charge (nécessaire pour WebAuthn)
+    const port = await createLocalServer();
+    mainWindow.loadURL(`http://localhost:${port}`);
   } else {
     // Développement : charge le serveur Vite
     mainWindow.loadURL('http://localhost:5173');
@@ -319,8 +386,22 @@ app.whenReady().then(() => {
 
 // Quitte quand toutes les fenêtres sont fermées (sauf macOS)
 app.on('window-all-closed', () => {
+  // Ferme le serveur HTTP local si actif
+  if (localServer) {
+    localServer.close();
+    localServer = null;
+  }
+  
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+// Nettoyage avant fermeture
+app.on('before-quit', () => {
+  if (localServer) {
+    localServer.close();
+    localServer = null;
   }
 });
 

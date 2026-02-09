@@ -7,7 +7,9 @@ import { WebAuthnCredential } from '../types/security';
 import { extractAAGUIDFromAttestation, formatAuthenticatorName } from './aaguids';
 
 const RP_NAME = 'Cryptos-Services Vault';
-const RP_ID = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+// Pour Electron: utilise toujours 'localhost' (app desktop locale)
+// window.location.hostname est vide avec file:// protocol
+const RP_ID = 'localhost';
 
 /**
  * Vérifie si WebAuthn est disponible dans le navigateur
