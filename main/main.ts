@@ -19,7 +19,10 @@ autoUpdater.autoInstallOnAppQuit = true;
 /**
  * Crée un serveur HTTP local pour servir les fichiers en production
  * Nécessaire pour WebAuthn qui requiert http://localhost ou HTTPS
+ * IMPORTANT: Utilise un port FIXE pour que localStorage persiste entre les sessions
  */
+const FIXED_PORT = 54321; // Port fixe pour garantir la persistance localStorage
+
 function createLocalServer(): Promise<number> {
   return new Promise((resolve, reject) => {
     const rendererPath = path.join(__dirname, '../renderer');
@@ -66,21 +69,61 @@ function createLocalServer(): Promise<number> {
       });
     });
 
-    // Écoute sur un port aléatoire (0 = auto)
-    localServer.listen(0, '127.0.0.1', () => {
-      const address = localServer?.address();
-      if (address && typeof address !== 'string') {
-        serverPort = address.port;
-        console.log(`🌐 Serveur local démarré sur http://localhost:${serverPort}`);
-        resolve(serverPort);
-      } else {
-        reject(new Error('Impossible de démarrer le serveur local'));
-      }
+    // Écoute sur le port FIXE (garantit même origine = localStorage persiste)
+    localServer.listen(FIXED_PORT, '127.0.0.1', () => {
+      serverPort = FIXED_PORT;
+      console.log(`🌐 Serveur local démarré sur http://localhost:${serverPort}`);
+      resolve(serverPort);
     });
 
-    localServer.on('error', (err) => {
-      console.error('❌ Erreur serveur local:', err);
-      reject(err);
+    localServer.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${FIXED_PORT} déjà utilisé. Tentative port alternatif...`);
+        // Fallback: essaie port +1 si conflit
+        const fallbackPort = FIXED_PORT + 1;
+        localServer = http.createServer((req, res) => {
+          // Même logique de serveur (copie du code ci-dessus)
+          let filePath = path.join(rendererPath, req.url === '/' ? 'index.html' : req.url || '');
+          if (!filePath.startsWith(rendererPath)) {
+            res.writeHead(403);
+            res.end('Forbidden');
+            return;
+          }
+          const ext = path.extname(filePath);
+          const contentTypes: { [key: string]: string } = {
+            '.html': 'text/html',
+            '.js': 'application/javascript',
+            '.css': 'text/css',
+            '.json': 'application/json',
+            '.png': 'image/png',
+            '.jpg': 'image/jpeg',
+            '.svg': 'image/svg+xml',
+            '.ico': 'image/x-icon',
+          };
+          const contentType = contentTypes[ext] || 'application/octet-stream';
+          fs.readFile(filePath, (err, data) => {
+            if (err) {
+              res.writeHead(err.code === 'ENOENT' ? 404 : 500);
+              res.end(err.code === 'ENOENT' ? 'File not found' : 'Internal server error');
+            } else {
+              res.writeHead(200, { 'Content-Type': contentType });
+              res.end(data);
+            }
+          });
+        });
+        
+        localServer.listen(fallbackPort, '127.0.0.1', () => {
+          serverPort = fallbackPort;
+          console.log(`⚠️ Fallback: Serveur local démarré sur http://localhost:${serverPort}`);
+          console.warn(`⚠️ ATTENTION: Port différent = localStorage différent. Préférez fermer l'autre instance.`);
+          resolve(serverPort);
+        });
+        
+        localServer.on('error', reject);
+      } else {
+        console.error('❌ Erreur serveur local:', err);
+        reject(err);
+      }
     });
   });
 }
@@ -417,7 +460,3 @@ if (!gotTheLock) {
     }
   });
 }
-
-
-
-
