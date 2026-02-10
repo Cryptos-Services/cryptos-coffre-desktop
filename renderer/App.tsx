@@ -81,9 +81,15 @@ export default function App() {
           <div className="vault-unlock-card">
             <h1 className="vault-title">⚠️ Période d'essai expirée</h1>
             <p className="license-expired-text">
+              Votre période d'essai de 360 heures (15 jours) est terminée.<br />
+              Activez une licence pour continuer à utiliser Cryptos Coffre.
+            </p>
+            {/* Bouton pour ouvrir le modal de licence
+            <p className="license-expired-text">
               Votre période d'essai de 15 jours est terminée.<br />
               Activez une licence pour continuer à utiliser Cryptos Coffre.
             </p>
+             */}
             <button
               className="btn-unlock"
               onClick={() => setShowLicenseModal(true)}
