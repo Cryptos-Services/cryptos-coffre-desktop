@@ -2666,28 +2666,31 @@ html, body, #root {
 /* === Bandeaux d'information licence === */
 .license-banner {
   border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
+  padding: 0.3rem 1rem;
+  margin: 0.5rem auto 2rem auto;
+  font-family: "fantasy", cursive;
+  max-width: 450px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #ffde59;
 }
 
 .license-banner-trial {
-  background: linear-gradient(135deg, rgba(241, 196, 15, 0.15) 0%, rgba(230, 126, 34, 0.15) 100%);
-  border: 1px solid rgba(241, 196, 15, 0.3);
+  background: linear-gradient(135deg, rgba(215, 15, 241, 0.15) 0%, rgba(73, 230, 34, 0.15) 100%);
+  border: 2px solid rgba(79, 241, 15, 0.3);
+  box-shadow: 0 4px 12px rgba(79, 241, 15, 0.377);
+  padding-bottom: 0.4rem;
 }
 
 .license-banner-active {
-  background: linear-gradient(135deg, rgba(46, 213, 115, 0.15) 0%, rgba(39, 174, 96, 0.15) 100%);
-  border: 1px solid rgba(46, 213, 115, 0.3);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(74, 222, 128, 0.15) 100%);
+  border: 2px solid rgba(74, 222, 128, 0.3);
 }
 
 .license-banner-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   flex: 1;
 }
 
@@ -2695,15 +2698,121 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .license-banner-emoji {
-  font-size: 24px;
+  font-size: 20px;
+  margin-right: 0.3rem;
 }
 
+/* Label "Période d'essai" - discret */
+.license-banner-info strong {
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.6;
+  /*text-transform: uppercase; */
+  letter-spacing: 0.5px;
+}
+
+/* Compteur - grand et séparé */
 .license-banner-text {
-  margin-left: 8px;
-  opacity: 0.8;
+  margin-top: 4px;
+  font-size: 1.8rem;
+  font-weight: 600;
+  opacity: 1;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Chaque segment du compteur */
+.license-timer-segment {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.license-timer-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: rgba(3, 1, 21, 0.91);
+  border: #00ff00 1px solid;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  color: rgba(30, 233, 3, 0.95);
+}
+
+.license-timer-unit {
+  font-size: 0.9rem;
+  font-weight: 400;
+  opacity: 0.7;
+  color: rgba(30, 233, 3, 0.95);
+}
+
+/* Séparateur pipe */
+.license-timer-separator {
+  font-size: 1.5rem;
+  opacity: 0.4;
+  margin: 0 4px;
+}
+
+/* Responsive pour bandeau de licence */
+@media (max-width: 768px) {
+  .license-banner-text {
+    font-size: 1.4rem;
+    gap: 6px;
+    letter-spacing: 1px;
+  }
+  
+  .license-timer-value {
+    font-size: 1.4rem;
+  }
+  
+  .license-timer-unit {
+    font-size: 0.75rem;
+  }
+  
+  .license-timer-separator {
+    font-size: 1.2rem;
+    margin: 0 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .license-banner {
+    padding: 10px 12px;
+  }
+  
+  .license-banner-emoji {
+    font-size: 18px;
+  }
+  
+  .license-banner-info strong {
+    font-size: 0.7rem;
+  }
+  
+  .license-banner-text {
+    font-size: 1.2rem;
+    gap: 4px;
+    letter-spacing: 0.5px;
+  }
+  
+  .license-timer-value {
+    font-size: 1.2rem;
+  }
+  
+  .license-timer-unit {
+    font-size: 0.65rem;
+  }
+  
+  .license-timer-separator {
+    font-size: 1rem;
+    margin: 0 1px;
+  }
 }
 
 /* === Écran d'expiration de licence === */
