@@ -52,6 +52,17 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
   // État pour l'info de licence
   const [licenseInfo, setLicenseInfo] = useState(getLicenseInfo());
   
+  // Rafraîchit le compteur de licence chaque seconde (décompte temps réel)
+  useEffect(() => {
+    if (licenseInfo.status !== 'trial') return;
+    
+    const intervalId = setInterval(() => {
+      setLicenseInfo(getLicenseInfo());
+    }, 1000); // Rafraîchir chaque seconde
+    
+    return () => clearInterval(intervalId);
+  }, [licenseInfo.status]);
+  
   // Écoute les mises à jour de licence
   useEffect(() => {
     const handleLicenseUpdate = () => {
@@ -1558,13 +1569,39 @@ export default function VaultDashboard({ onUnlockChange }: VaultDashboardProps =
         <div className="license-banner license-banner-trial">
           <div className="license-banner-content">
             <div className="license-banner-info">
-              <span className="license-banner-emoji">🎁</span>
               <div>
-                <strong>Période d'essai</strong>
-                {' '}
+                {/* Affiche le nombre de jours restants avec une bonne gestion du pluriel */}
+                <span className="license-banner-emoji">🎁</span>
+                <strong>Période d'Essai se Termine dans :</strong>
+                <div className="license-banner-text">
+                  <span className="license-timer-segment">
+                    <span className="license-timer-value">{licenseInfo.trialTimeRemaining.days}</span>
+                    <span className="license-timer-unit">j</span>
+                  </span>
+                  {/* <span className="license-timer-separator">|</span> */}
+                  <span className="license-timer-segment">
+                    <span className="license-timer-value">{String(licenseInfo.trialTimeRemaining.hours).padStart(2, '0')}</span>
+                    <span className="license-timer-unit">h</span>
+                  </span>
+                  {/* <span className="license-timer-separator">|</span> */}
+                  <span className="license-timer-segment">
+                    <span className="license-timer-value">{String(licenseInfo.trialTimeRemaining.minutes).padStart(2, '0')}</span>
+                    <span className="license-timer-unit">m</span>
+                  </span>
+                  {/* <span className="license-timer-separator">|</span> */}
+                  <span className="license-timer-segment">
+                    <span className="license-timer-value">{String(licenseInfo.trialTimeRemaining.seconds).padStart(2, '0')}</span>
+                    <span className="license-timer-unit">s</span>
+                  </span>
+                </div>
+                {/* Ancien affichage jours commenté:
                 <span className="license-banner-text">
                   {licenseInfo.trialDaysRemaining} jour{licenseInfo.trialDaysRemaining > 1 ? 's' : ''} restant{licenseInfo.trialDaysRemaining > 1 ? 's' : ''}
-                </span>
+                </span>*/}
+                {/* Ancien affichage heures commenté:
+                <span className="license-banner-text">
+                  {licenseInfo.trialHoursRemaining} heure{licenseInfo.trialHoursRemaining > 1 ? 's' : ''} restante{licenseInfo.trialHoursRemaining > 1 ? 's' : ''}
+                </span>*/}
               </div>
             </div>
           </div>
