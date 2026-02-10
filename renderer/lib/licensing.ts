@@ -9,12 +9,21 @@ export interface LicenseInfo {
   status: LicenseStatus;
   trialStartDate: string | null; // ISO date
   trialDaysRemaining: number;
+  trialHoursRemaining: number;
+  trialTimeRemaining: {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    totalSeconds: number;
+  };
   licenseKey: string | null;
   licenseActivatedAt: string | null;
   isLicenseValid: boolean;
 }
 
-const TRIAL_DURATION_DAYS = 15;
+// const TRIAL_DURATION_DAYS = 15;
+const TRIAL_DURATION_HOURS = 360;
 const STORAGE_KEY_TRIAL_START = 'license_trial_start';
 const STORAGE_KEY_LICENSE = 'license_key';
 const STORAGE_KEY_LICENSE_ACTIVATED = 'license_activated_at';
@@ -33,9 +42,61 @@ export function initializeTrial(): void {
   }
 }
 
+function calculateTrialHoursRemaining(): number {
+  const trialStart = localStorage.getItem(STORAGE_KEY_TRIAL_START);
+  if (!trialStart) return TRIAL_DURATION_HOURS;
+
+  const startDate = new Date(trialStart);
+  const now = new Date();
+  const hoursPassed = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60)); // Diviser par millisecondes d'1h
+  const hoursRemaining = TRIAL_DURATION_HOURS - hoursPassed;
+
+  return Math.max(0, hoursRemaining);
+}
+
+/**
+ * Calcule le temps restant détaillé (jours, heures, minutes, secondes)
+ */
+function calculateDetailedTimeRemaining(): {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  totalSeconds: number;
+} {
+  const trialStart = localStorage.getItem(STORAGE_KEY_TRIAL_START);
+  
+  if (!trialStart) {
+    // Première utilisation : retourner la durée totale
+    const totalSeconds = TRIAL_DURATION_HOURS * 60 * 60;
+    return {
+      days: Math.floor(totalSeconds / (24 * 60 * 60)),
+      hours: Math.floor((totalSeconds % (24 * 60 * 60)) / (60 * 60)),
+      minutes: Math.floor((totalSeconds % (60 * 60)) / 60),
+      seconds: totalSeconds % 60,
+      totalSeconds,
+    };
+  }
+
+  const startDate = new Date(trialStart);
+  const now = new Date();
+  const totalSecondsRemaining = Math.max(
+    0,
+    TRIAL_DURATION_HOURS * 60 * 60 - Math.floor((now.getTime() - startDate.getTime()) / 1000)
+  );
+
+  return {
+    days: Math.floor(totalSecondsRemaining / (24 * 60 * 60)),
+    hours: Math.floor((totalSecondsRemaining % (24 * 60 * 60)) / (60 * 60)),
+    minutes: Math.floor((totalSecondsRemaining % (60 * 60)) / 60),
+    seconds: totalSecondsRemaining % 60,
+    totalSeconds: totalSecondsRemaining,
+  };
+}
+
 /**
  * Calcule le nombre de jours restants dans la période d'essai
- */
+
 function calculateTrialDaysRemaining(): number {
   const trialStart = localStorage.getItem(STORAGE_KEY_TRIAL_START);
   if (!trialStart) return TRIAL_DURATION_DAYS;
@@ -47,6 +108,7 @@ function calculateTrialDaysRemaining(): number {
 
   return Math.max(0, daysRemaining);
 }
+*/
 
 /**
  * Obtient les informations complètes sur la licence
@@ -55,7 +117,10 @@ export function getLicenseInfo(): LicenseInfo {
   const trialStart = localStorage.getItem(STORAGE_KEY_TRIAL_START);
   const licenseKey = localStorage.getItem(STORAGE_KEY_LICENSE);
   const licenseActivatedAt = localStorage.getItem(STORAGE_KEY_LICENSE_ACTIVATED);
-  const daysRemaining = calculateTrialDaysRemaining();
+  const detailedTime = calculateDetailedTimeRemaining();
+  const totalHoursRemaining = calculateTrialHoursRemaining();
+  const daysRemaining = totalHoursRemaining > 0 ? Math.ceil(totalHoursRemaining / 24) : 0;
+  //const daysRemaining = calculateTrialDaysRemaining();
 
   // Si une licence valide existe
   if (licenseKey && licenseActivatedAt) {
@@ -63,6 +128,8 @@ export function getLicenseInfo(): LicenseInfo {
       status: 'active',
       trialStartDate: trialStart,
       trialDaysRemaining: 0,
+      trialHoursRemaining: 0,
+      trialTimeRemaining: { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 },
       licenseKey,
       licenseActivatedAt,
       isLicenseValid: true,
@@ -70,11 +137,13 @@ export function getLicenseInfo(): LicenseInfo {
   }
 
   // Période d'essai
-  if (daysRemaining > 0) {
+  if (detailedTime.totalSeconds > 0) {
     return {
       status: 'trial',
       trialStartDate: trialStart,
       trialDaysRemaining: daysRemaining,
+      trialHoursRemaining: totalHoursRemaining,
+      trialTimeRemaining: detailedTime,
       licenseKey: null,
       licenseActivatedAt: null,
       isLicenseValid: false,
@@ -86,6 +155,8 @@ export function getLicenseInfo(): LicenseInfo {
     status: 'expired',
     trialStartDate: trialStart,
     trialDaysRemaining: 0,
+    trialHoursRemaining: 0,
+    trialTimeRemaining: { days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 },
     licenseKey: null,
     licenseActivatedAt: null,
     isLicenseValid: false,
