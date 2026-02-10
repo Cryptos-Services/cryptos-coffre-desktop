@@ -52,12 +52,21 @@ export function LicenseModal({ onClose, onActivated }: LicenseModalProps) {
     }
 
     if (licenseInfo.status === 'trial') {
+      const time = licenseInfo.trialTimeRemaining;
+      const timeStr = `${time.days}j ${String(time.hours).padStart(2, '0')}h ${String(time.minutes).padStart(2, '0')}m ${String(time.seconds).padStart(2, '0')}s`;
+      
       return {
         emoji: '🎁',
-        title: `Période d'essai - ${licenseInfo.trialDaysRemaining} jour${licenseInfo.trialDaysRemaining > 1 ? 's' : ''} restant${licenseInfo.trialDaysRemaining > 1 ? 's' : ''}`,
-        message: `Profitez de toutes les fonctionnalités gratuitement pendant encore ${licenseInfo.trialDaysRemaining} jour${licenseInfo.trialDaysRemaining > 1 ? 's' : ''}.`,
+        title: `Période d'essai - ${timeStr} restant${time.totalSeconds > 1 ? 's' : ''}`,
+        message: `Profitez de toutes les fonctionnalités gratuitement pendant encore ${timeStr}.`,
         color: 'info'
       };
+
+        // emoji: '🎁',
+        // title: `Période d'essai - ${licenseInfo.trialDaysRemaining} jour${licenseInfo.trialDaysRemaining > 1 ? 's' : ''} restant${licenseInfo.trialDaysRemaining > 1 ? 's' : ''}`,
+        // message: `Profitez de toutes les fonctionnalités gratuitement pendant encore ${licenseInfo.trialDaysRemaining} jour${licenseInfo.trialDaysRemaining > 1 ? 's' : ''}.`,
+        // color: 'info'
+      // };
     }
 
     return {
